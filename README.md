@@ -1,1 +1,1 @@
-WebAssembly sample with GO
+WebAssembly sample with GO - 3D Example
