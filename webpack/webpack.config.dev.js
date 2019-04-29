@@ -2,6 +2,7 @@ const Path = require('path');
 const Webpack = require('webpack');
 const merge = require('webpack-merge');
 const common = require('./webpack.common.js');
+const WebpackShellPlugin = require('webpack-shell-plugin-next');
 
 module.exports = merge(common, {
   mode: 'development',
@@ -15,6 +16,18 @@ module.exports = merge(common, {
   plugins: [
     new Webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development')
+    }),
+    new WebpackShellPlugin({
+      onBuildStart:{
+        scripts: ['bash ./src/go/build.sh'],
+        blocking: true,
+        parallel: false
+      }, 
+      onBuildEnd:{
+        scripts: ['echo "WebAssembly build completed"'],
+        blocking: false,
+        parallel: true
+      }
     })
   ],
   module: {

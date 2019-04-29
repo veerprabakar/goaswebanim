@@ -1,34 +1,32 @@
 import '../styles/index.scss';
 
 const go = new Go();
+let spin;
+let spinningReceived;
+let resolveSpinningReceived;
+var timer;
 
-let mod, inst;
+async function run() {
+    spinningReceived = new Promise(resolve => {
+        resolveSpinningReceived = resolve;
+    })
+    WebAssembly.instantiateStreaming(fetch('./public/main.wasm'), go.importObject)
+    .then(function(res) {
+        go.run(res.instance);
+    });
+}
 
-WebAssembly.instantiateStreaming(fetch("./public/main.wasm"), go.importObject).then(
-    result => {
-        mod = result.module;
-        inst = result.instance;
-        go.run(inst);
-    }
-);
+run();
 
-// global calc function
-window.calc = function(op) {
-    let v1 = Number(document.getElementById("val1").value);
-    let v2 = Number(document.getElementById("val2").value);
+window.runSpin = function (callback) {
+    spin = callback;
+    resolveSpinningReceived()
+}
 
-    if (!v1 || !v2) {
-        return;
-    }
+window.stopTimer = function() {
+    clearTimeout(timer);
+}
 
-    // call the GO calc
-    if (op === '+') {
-        add(v1, v2);
-    } else if (op === '-') {
-        sub(v1, v2);
-    } else if (op === '*') {
-        mul(v1, v2);
-    } else if (op === '/') {
-        div(v1, v2);
-    }
+window.startTimer = function() {
+    timer = setInterval(function(){ spin(); }, 0);
 }

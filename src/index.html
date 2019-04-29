@@ -11,27 +11,11 @@
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
-
-  <div class="navbar">
-    <div class="card">
-      <div class="card-header">
-        Go as WASM - Simple Calculator
-      </div>
-      <div class="card-body">
-        <input type="text" id="val1" value="10" />
-        <input type="text" id="val2" value="5" />
-        = <input type="text" id="output" disabled />
-        <br />
-        <br />
-        <div class="button-group">
-          <button onClick="calc('+');">+</button>
-          <button onClick="calc('-');">-</button>
-          <button onClick="calc('*');">*</button>
-          <button onClick="calc('/');">/</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <br /><br /><br />
+  <button onclick="startTimer()">Spin</button>
+  <button onclick="stopTimer()">Stop</button>
+  <br /><br /><br />
+  <div id="spinning"></div>
+  <label id="counter" />
 </body>
 </html>

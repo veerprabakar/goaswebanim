@@ -1,47 +1,44 @@
-
-
 package main
 
 import (
+	"fmt"
 	"syscall/js"
 )
 
+const width = "width:100px;"
+const height = "height:100px;"
+const backgroundColor = "background-color:black;"
+const center = `margin:auto;`
+const font = "color:white;"
+
+var element js.Value
+var doc js.Value
+var counter int
+var beforeUnloadChannel = make(chan struct{})
+
 func main() {
-	c := make(chan struct{}, 0)
-	println("WASM Go Initialized")
-	registerCallbacks()
-	<-c
+	doc = js.Global().Get("document")
+	element = doc.Call("getElementById", "spinning")
+	element.Call("setAttribute", "style", width+height+backgroundColor+center+font)
+
+	cb := js.NewCallback(spin)
+	defer cb.Release()
+	runSpin := js.Global().Get("runSpin")
+	runSpin.Invoke(cb)
+	<-beforeUnloadChannel
 }
 
-func registerCallbacks() {
-	js.Global().Set("add", js.NewCallback(add))
-	js.Global().Set("sub", js.NewCallback(sub))
-	js.Global().Set("mul", js.NewCallback(mul))
-	js.Global().Set("div", js.NewCallback(div))
+func spin(args []js.Value) {
+
+	element.Call("setAttribute", "style", rotate(counter*15)+width+height+backgroundColor+center+font)
+	counter++
+	js.Global().Get("document").Call("getElementById", "counter").Set("value", counter)
 }
 
-func add(i []js.Value) {
-	result := js.ValueOf(i[0].Int() + i[1].Int())
-	setResult(result)
+func rotate(degree int) string {
+	return fmt.Sprintf(`-webkit-transition: -webkit-transform 1.5s linear;transform: rotate(%vdeg);`, degree)
 }
 
-func sub(i []js.Value) {
-	result := js.ValueOf(i[0].Int() - i[1].Int())
-	setResult(result)
+func beforeUnload(event js.Value) {
+	beforeUnloadChannel <- struct{}{}
 }
-
-func mul(i []js.Value) {
-	result := js.ValueOf(i[0].Int() * i[1].Int())
-	setResult(result)
-}
-
-func div(i []js.Value) {
-	result := js.ValueOf(i[0].Int() / i[1].Int())
-	setResult(result)
-}
-
-func setResult(val js.Value) {
-	js.Global().Get("document").Call("getElementById", "output").Set("value", val)
-}
-
-
